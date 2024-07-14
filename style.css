@@ -1,14 +1,14 @@
 * {
     margin: 0;
     padding: 0;
-    font-family: 'Poppins', sans-serif;
+    font-family: 'Poppins', sans-serif, Fantasy;
     box-sizing: border-box;
 }
 
 .proj {
     width: 100%;
     min-height: 100vh;
-    background: linear-gradient(45deg, #010758, #490d61);
+    background: linear-gradient(45deg, rgba(255, 0, 0, 0.909), rgba(0, 0, 255, 0.904));
     display: flex;
     align-items: center;
     justify-content: center;
@@ -30,7 +30,7 @@
 textarea {
     width: 600px;
     height: 250px;
-    background: #403d84;
+    background: #413d84d8;
     color: #fff;
     font-size: 15px;
     border: 0;
@@ -54,7 +54,7 @@ textarea::placeholder {
 }
 
 button {
-    background: #ff2963;
+    background: #ff2962c4;
     color: #fff;
     font-size: 16px;
     padding: 10px 30px;
