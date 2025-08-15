@@ -352,13 +352,13 @@ This subsection outlines the configuration for tasks designed to ingest data fro
 #### 3. Get the Service Account Email
 - Found in your Service Account details.  
 - _Example:_  
-my-service-account@your-project-id.iam.gserviceaccount.com
+`my-service-account@your-project-id.iam.gserviceaccount.com`
 
 
 #### 4. Get the Google Drive Folder ID
 1. Open the target Google Drive folder in a browser.  
 2. The URL format will be:  
-https://drive.google.com/drive/folders/<FOLDER_ID>
+`https://drive.google.com/drive/folders/<FOLDER_ID>`
 
 
 #### 5. Share the Folder with Service Account
