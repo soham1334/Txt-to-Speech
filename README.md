@@ -15,8 +15,8 @@
 5. [Setup & Usage Guide](#5-setup--usage-guide)  
    - [5.1. Files Involved in Setup](#51-files-involved-in-setup)  
    - [5.2. Installation](#52-installation)  
-     - [Prerequisites](#prerequisites)  
-     - [Dependency Installation](#dependency-installation)  
+     - [5.2.1. Prerequisites](#521-prerequisites)  
+     - [5.2.2. Dependency Installation](#522-dependency-installation)  
    - [5.3. Define Tasks (config/defaultyaml)](#53-define-tasks-configdefaultyaml)  
      - [5.3.1. Git Tasks (Cron + Webhook)](#531-git-tasks-cron--webhook)  
      - [5.3.2. Google Drive Tasks (Cron + Webhook)](#532-google-drive-tasks-cron--webhook)  
@@ -25,12 +25,12 @@
      - [5.4.1. Core Functionality](#541-core-functionality)  
    - [5.5. Cron Trigger Workflow](#55-cron-trigger-workflow)  
      - [5.5.1. Cron Event Definition](#551-cron-event-definition-configeventscron-testyaml)  
-     - [5.5.2. Cron Event Handler](#552-cron-event-handler)  
-     - [5.5.3. How it Works Together](#553-how-it-works-together)  
+     - [5.5.2. Cron Event Handler](#552-cron-event-handler-srcfunctionstesttriggeringestionmanagercrontasksts)  
+     - [5.5.3. How it Works Together](#553-how-the-cron-workflow-works-together)  
    - [5.6. Webhook Trigger Workflow](#56-webhook-trigger-workflow)  
-     - [5.6.1. Webhook Event Definitions](#561-webhook-event-definitions)  
+     - [5.6.1. Webhook Event Definitions](#561-webhook-event-definitions-srceventsgdrive-eventyaml--srceventsgit_eventsyaml)  
      - [5.6.2. Webhook Event Handler](#562-webhook-event-handler)  
-     - [5.6.3. How it Works Together](#563-how-it-works-together)  
+     - [5.6.3. How it Works Together](#563-how-the-webhook-workflow-works-together)  
 
 
 
@@ -643,7 +643,7 @@ export default async function (ctx: GSContext) {
     }
 }
 ```
-### **5.5.3. How the Cron Workflow Works Together**
+### 5.5.3. How the Cron Workflow Works Together
 
 - **Cron Event Source (Godspeed Framework)**  
   The Godspeed framework, configured by `config/events/cron-test.yaml`, acts as a timer. At each specified interval (e.g., every minute), it emits a `cron.* * * * *.Asia/Kolkata` event.
