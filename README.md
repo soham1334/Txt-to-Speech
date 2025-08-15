@@ -97,10 +97,10 @@ npm install --save-dev jest ts-jest @types/jest ts-node @types/axios @types/chee
 ---
 ## 5. Usage
 
-## **5. Usage**
+
 The Crawler SDK components are designed to be invoked by an external orchestrator (like the Scheduler SDK).
 
-### **5.1. General Concept**
+### 5.1. General Concept
 Your Scheduler SDK will typically:
 
 - Load a `taskDefinition` from its database.
@@ -119,7 +119,7 @@ const result = await crawlerInstance.execute(context, initialPayload);
 ```
 **Process result.data.data (the IngestionData) and result.data.startPageToken / nextPageToken for persistence.**
 
-**5.2. Configuration**
+### 5.2. Configuration
 
 Each crawler type is configured via a `GitCrawlerConfig`, `GoogleDriveCrawlerConfig`, or `HttpCrawlerConfig` object. These configurations are typically defined in YAML files (e.g., `config/datasources/git-crawler.yaml`) and are used primarily for the initialization of the `DataSource` type when the system starts up. They serve as a reference and guide for developers to understand the available configuration parameters for each crawler.
 
