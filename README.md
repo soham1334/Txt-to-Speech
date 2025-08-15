@@ -1,53 +1,34 @@
- Project Map
-1. Introduction
+## Project Map
 
-2. Features
+1. [Introduction](#1-introduction)  
 
-3. Architecture Overview
+2. [Features](#2-features)  
 
-Key Principles
+3. [Architecture Overview](#3-architecture-overview)  
+   - [Key Principles](#key-principles)  
+   - [Interaction Flow](#interaction-flow)  
 
-Interaction Flow
+4. [Project File Structure](#4-project-file-structure)  
 
-4. Project File Structure
-
-5. Setup & Usage Guide
-
-5.1. Files Involved in Setup
-
-5.2. Installation
-
-Prerequisites
-
-Dependency Installation
-
-5.3. Define Tasks (config/default.yaml)
-
-Git Tasks (Cron + Webhook)
-
-Google Drive Tasks (Cron + Webhook)
-
-HTTP Tasks (Cron)
-
-5.4. Main Setup File (src/final-test.ts)
-
-Core Functionality
-
-5.5. Cron Trigger Workflow
-
-Cron Event Definition
-
-Cron Event Handler
-
-How it Works Together
-
-5.6. Webhook Trigger Workflow
-
-Webhook Event Definitions
-
-Webhook Event Handler
-
-How it Works Together
+5. [Setup & Usage Guide](#5-setup--usage-guide)  
+   - [5.1. Files Involved in Setup](#51-files-involved-in-setup)  
+   - [5.2. Installation](#52-installation)  
+     - [Prerequisites](#prerequisites)  
+     - [Dependency Installation](#dependency-installation)  
+   - [5.3. Define Tasks (config/defaultyaml)](#53-define-tasks-configdefaultyaml)  
+     - [Git Tasks (Cron + Webhook)](#git-tasks-cron--webhook)  
+     - [Google Drive Tasks (Cron + Webhook)](#google-drive-tasks-cron--webhook)  
+     - [HTTP Tasks (Cron)](#http-tasks-cron)  
+   - [5.4. Main Setup File (src/final-testts)](#54-main-setup-file-srcfinal-testts)  
+     - [Core Functionality](#core-functionality)  
+   - [5.5. Cron Trigger Workflow](#55-cron-trigger-workflow)  
+     - [Cron Event Definition](#cron-event-definition)  
+     - [Cron Event Handler](#cron-event-handler)  
+     - [How it Works Together](#how-it-works-together)  
+   - [5.6. Webhook Trigger Workflow](#56-webhook-trigger-workflow)  
+     - [Webhook Event Definitions](#webhook-event-definitions)  
+     - [Webhook Event Handler](#webhook-event-handler)  
+     - [How it Works Together](#how-it-works-together)  
 
 
 
