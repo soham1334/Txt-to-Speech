@@ -1,3 +1,58 @@
+ Project Map
+1. Introduction
+
+2. Features
+
+3. Architecture Overview
+
+Key Principles
+
+Interaction Flow
+
+4. Project File Structure
+
+5. Setup & Usage Guide
+
+5.1. Files Involved in Setup
+
+5.2. Installation
+
+Prerequisites
+
+Dependency Installation
+
+5.3. Define Tasks (config/default.yaml)
+
+Git Tasks (Cron + Webhook)
+
+Google Drive Tasks (Cron + Webhook)
+
+HTTP Tasks (Cron)
+
+5.4. Main Setup File (src/final-test.ts)
+
+Core Functionality
+
+5.5. Cron Trigger Workflow
+
+Cron Event Definition
+
+Cron Event Handler
+
+How it Works Together
+
+5.6. Webhook Trigger Workflow
+
+Webhook Event Definitions
+
+Webhook Event Handler
+
+How it Works Together
+
+
+
+
+
 # 1. Introduction
 
 This project comprises two core components: a **Crawler SDK** and a **Scheduler SDK**.  
