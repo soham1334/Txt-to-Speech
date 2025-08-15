@@ -749,7 +749,7 @@ http.post./webhook/gdrive/: # Defines an HTTP POST endpoint at /webhook/gdrive/
 - This indicates that Godspeed's built-in authentication for this HTTP endpoint is disabled.  
 - This is because webhook authentication (signature/secret validation) is handled internally by your Scheduler SDK's logic (`processWebhookRequest.ts`) for greater control and flexibility.  
 
-###5.6.2. Webhook Event Handler (`src/functions/TEST/triggerIngestionManagerWebhookTasks.ts`)
+### 5.6.2. Webhook Event Handler (`src/functions/TEST/triggerIngestionManagerWebhookTasks.ts`)
 
 This TypeScript file contains the **Godspeed event handler** that is executed whenever a webhook notification, as defined in the event YAMLs, is received.  
 
