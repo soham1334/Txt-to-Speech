@@ -196,7 +196,7 @@ Some libraries (like `simple-git`, `googleapis`, and `google-auth-library`) bund
 
 The command above includes only the `@types` packages that are typically required.
 
-### 5.3. Define Tasks (`config/default.yaml`)
+## 5.3. Define Tasks (`config/default.yaml`)
 
 This section explains how to define ingestion tasks for the **Scheduler SDK**.  
 Tasks are configured directly within your `config/default.yaml` file, serving as the central point for specifying their **source**, **destination**, and **trigger mechanisms**.
@@ -311,7 +311,7 @@ tasks:
     currentStatus: SCHEDULED
 ```
 
-## 5.3.2 Google Drive Tasks (Cron + Webhook)
+### 5.3.2 Google Drive Tasks (Cron + Webhook)
 
 This subsection outlines the configuration for tasks designed to ingest data from **Google Drive**, supporting both scheduled full scans and real-time updates via webhooks.
 
@@ -448,13 +448,13 @@ tasks:
       credentials: { serviceAccountKeyPath: "" }
     currentStatus: SCHEDULED
 ```
-## 5.3.3. HTTP Tasks (Cron)
+### 5.3.3. HTTP Tasks (Cron)
 
 This subsection details the structure for defining tasks that crawl publicly accessible web pages and resources via **HTTP/HTTPS**, typically triggered by a cron schedule.
 
 ---
 
-### **Key Configuration Fields**
+#### **Key Configuration Fields**
 
 - **id** – A unique identifier for the task  
   _Example_: `cron-http-crawl-daily`
@@ -501,7 +501,7 @@ This subsection details the structure for defining tasks that crawl publicly acc
 
 ---
 
-### **Example `config/default.yaml` Snippet for HTTP Tasks**
+#### **Example `config/default.yaml` Snippet for HTTP Tasks**
 
 ```yaml
 # config/default.yaml
