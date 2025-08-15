@@ -24,7 +24,7 @@
    - [5.4. Main Setup File (src/final-testts)](#54-main-setup-file-srcfinal-testts)  
      - [5.4.1. Core Functionality](#541-core-functionality)  
    - [5.5. Cron Trigger Workflow](#55-cron-trigger-workflow)  
-     - [5.5.1. Cron Event Definition](#551-cron-event-definition)  
+     - [5.5.1. Cron Event Definition](#551-cron-event-definition-configeventscron-testyaml)  
      - [5.5.2. Cron Event Handler](#552-cron-event-handler)  
      - [5.5.3. How it Works Together](#553-how-it-works-together)  
    - [5.6. Webhook Trigger Workflow](#56-webhook-trigger-workflow)  
