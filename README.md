@@ -1,4 +1,6 @@
-## Project Map
+#Crawler SDK + Scheduler SDK (Simulated)
+
+## INDEX
 
 1. [Introduction](#1-introduction)  
 
@@ -575,7 +577,7 @@ This streamlines the setup process, avoiding repetitive manual registerSource ca
   ```
   to initialize the Scheduler's database (in-memory in this simulation) and begin its operation, making it ready to process triggers
 
-  ## **5.5. Cron Trigger Workflow**
+ ## **5.5. Cron Trigger Workflow**
 
 This section explains how tasks configured with a cron schedule are automatically executed by the Scheduler SDK. It details the role of the cron event definition and its corresponding handler function.
 
@@ -598,7 +600,7 @@ cron.* * * * *.Asia/Kolkata: # The cron expression and timezone define the sched
 - **Asia/Kolkata:** Specifies the timezone for the cron schedule.  
 - **fn: TEST.triggerIngestionManagerCronTasks:** This is the handler function that Godspeed will invoke when the cron event is due. It points to the `triggerIngestionManagerCronTasks` function located within the `TEST` directory under `src/functions/`.
 
-## **5.5.2. Cron Event Handler (`src/functions/TEST/triggerIngestionManagerCronTasks.ts`)**
+### 5.5.2. Cron Event Handler (`src/functions/TEST/triggerIngestionManagerCronTasks.ts`)
 
 This TypeScript file contains the **Godspeed event handler** that is executed whenever a cron event, as defined in `cron-test.yaml`, is triggered.
 
