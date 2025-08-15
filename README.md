@@ -119,6 +119,9 @@ The project follows a modular structure, separating concerns into distinct direc
 ├── pnpm-lock.yaml           # Dependency lock file
 ├── tsconfig.json            # TypeScript compiler configuration
 
+```
+
+
 # 5. Setup & Usage Guide
 
 This section provides a comprehensive, step-by-step guide to setting up and using your Crawler SDK and Scheduler SDK (Simulated). It covers dependency installation, environment configuration, task definition, and running tasks via various triggers, along with debugging tips.
@@ -150,6 +153,8 @@ Navigate to your project's root directory (where `package.json` is located) in y
 ```bash
 # Install runtime dependencies
 npm install @godspeedsystems/core simple-git axios uuid googleapis google-auth-library cheerio
+```
+
 **Note on `@types` packages:**  
 Some libraries (like `simple-git`, `googleapis`, and `google-auth-library`) bundle their TypeScript definitions directly, so explicit `@types/` packages for them might not be necessary. In some cases, installing them can cause conflicts (such as *E404 errors* during install).  
 
@@ -268,107 +273,103 @@ tasks:
       type: cron
       expression: '* * * * *' # Every minute
     currentStatus: SCHEDULED
+```
 
-5.3.2. Google Drive Tasks (Cron + Webhook)
+## 5.3.2 Google Drive Tasks (Cron + Webhook)
 
-This subsection outlines the configuration for tasks designed to ingest data from Google Drive, supporting both scheduled full scans and real-time updates via webhooks.
+This subsection outlines the configuration for tasks designed to ingest data from **Google Drive**, supporting both scheduled full scans and real-time updates via webhooks.
 
-Key Configuration Fields
+---
 
-id: A unique identifier for the task (e.g., my-cron-google-drive-crawl-task, my-webhook-google-drive-crawl-task).
+### **Key Configuration Fields**
 
-name: A human-readable display name for the task.
+- **`id`**  
+  A unique identifier for the task.  
+  _Example:_  
+  - `my-cron-google-drive-crawl-task`  
+  - `my-webhook-google-drive-crawl-task`
 
-enabled: Boolean (true/false) to activate or deactivate the task.
+- **`name`**  
+  A human-readable display name for the task.
 
-source: Defines the data source for this task.
+- **`enabled`**  
+  Boolean (`true` / `false`) to activate or deactivate the task.
 
-pluginType: Must be googledrive-crawler.
+- **`source`**  
+  Defines the data source for this task.  
+  - **`pluginType`**: Must be `googledrive-crawler`.
 
-config:
+- **`config`**  
+  - **`folderId`**: The ID of the Google Drive folder to crawl (**mandatory**).  
+  - **`authType`**: Must be `service_account`.  
+  - **`serviceAccountKeyPath`**: Path to your Google Service Account JSON key file.  
+  - **`userToImpersonateEmail`**: Email address of the user whose Google Drive account the service account will impersonate.  
+  - **`pageSize`**: Number of files retrieved per page (default: `100`).
 
-folderId: The ID of the Google Drive folder to crawl (mandatory).
+- **`destination`**  
+  Defines where ingested data will be stored.  
+  - **`pluginType`**: Must be `file-system-destination`.  
+  - **`config`**:  
+    ```yaml
+    outputPath: ./crawled_output/cron-gdrive-data
+    ```
+  - **Optional Destination**: If omitted, the Scheduler SDK emits a `DATA_PROCESSED` event without local storage.
 
-authType: Must be service_account.
+- **`trigger`**  
+  Specifies how the task is initiated.  
+  - **`type`**: `cron` or `webhook`.  
+  - **For `cron`**:  
+    - **`expression`**: Cron schedule. _Example:_ `* * * * *`  
+  - **For `webhook`**:  
+    - **`endpointId`**: Must be `/webhook/gdrive/`.  
+    - **`callbackurl`**: Public HTTPS URL for Google Drive webhook registration.  
+      - **Local**: Use [ngrok](https://ngrok.com/) —  
+        Example: `https://your-ngrok-url.ngrok-free.app/api/v1/webhook/gdrive/`  
+      - **Server**: Use deployment public URL.  
+    - **`credentials`**: Includes `serviceAccountKeyPath` or key string for authentication.
 
-serviceAccountKeyPath: Path to your Google Service Account JSON key file.
+- **`currentStatus`**  
+  Initial status, typically `SCHEDULED`.
 
-userToImpersonateEmail: Email address of the user whose Google Drive account the service account will impersonate.
+---
 
-pageSize: Number of files retrieved per page (default: 100).
+### **Obtaining Google Drive Credentials and Folder ID** 🔑
 
-destination: Defines where ingested data will be stored.
+#### 1. Create a Google Service Account Key
+1. Go to **Google Cloud Console**.
+2. Select your project (or create one).
+3. Navigate to: **IAM & Admin → Service Accounts**.
+4. Click **+ CREATE SERVICE ACCOUNT** and follow prompts.
+5. Assign a role (_e.g._, `Viewer`, `Editor`, or Drive-specific roles).
+6. Click **+ CREATE KEY** → Choose **JSON** → **CREATE**.  
+   A JSON key file will be downloaded — **store it securely**.
 
-pluginType: Must be file-system-destination.
+#### 2. Enable Google Drive API
+1. In Google Cloud Console:  
+   **APIs & Services → Enabled APIs and services → + ENABLE APIS AND SERVICES**
+2. Search for **Google Drive API** → Click → **ENABLE**.
 
-config: Example: outputPath: ./crawled_output/cron-gdrive-data.
+#### 3. Get the Service Account Email
+- Found in your Service Account details.  
+- _Example:_  
+my-service-account@your-project-id.iam.gserviceaccount.com
 
-Optional Destination: If omitted, the Scheduler SDK emits a DATA_PROCESSED event without local storage.
 
-trigger: Specifies how the task is initiated.
+#### 4. Get the Google Drive Folder ID
+1. Open the target Google Drive folder in a browser.  
+2. The URL format will be:  
+https://drive.google.com/drive/folders/<FOLDER_ID>
 
-type: cron or webhook.
 
-expression (for cron): Cron schedule (e.g., * * * * *).
+#### 5. Share the Folder with Service Account
+1. Right-click the folder → **Share**.  
+2. Paste the Service Account email.  
+3. Assign `Viewer` or `Editor` access.
 
-endpointId (for webhook): Must be /webhook/gdrive/.
 
-callbackurl (for webhook): Public HTTPS URL for Google Drive webhook registration.
-
-Local: use ngrok (e.g., https://your-ngrok-url.ngrok-free.app/api/v1/webhook/gdrive/)
-
-Server: use deployment public URL.
-
-credentials (for webhook): Includes serviceAccountKeyPath or key string for authentication.
-
-currentStatus: Initial status, typically SCHEDULED.
-
-Obtaining Google Drive Credentials and Folder ID 🔑
-
-Create a Google Service Account Key:
-
-Go to Google Cloud Console.
-
-Select your project (or create one).
-
-Navigate: IAM & Admin → Service Accounts.
-
-Click + CREATE SERVICE ACCOUNT and follow prompts.
-
-Step 2: Assign a role (e.g., Viewer, Editor, or Drive-specific roles).
-
-Step 3: + CREATE KEY → Choose JSON → CREATE.
-A JSON key file is downloaded — store securely.
-
-Enable Google Drive API:
-
-In Google Cloud Console:
-APIs & Services → Enabled APIs & services → + ENABLE APIS AND SERVICES.
-
-Search Google Drive API → Click → ENABLE.
-
-Get the Service Account Email:
-
-Found in your Service Account details.
-
-Example: my-service-account@your-project-id.iam.gserviceaccount.com.
-
-Get the Google Drive Folder ID:
-
-Open target Google Drive folder in browser.
-
-URL format: https://drive.google.com/drive/folders/<FOLDER_ID>.
-
-Share the Folder with Service Account:
-
-Right-click folder → Share → Paste Service Account email.
-
-Assign Viewer or Editor access.
-
-Example config/default.yaml Snippet
+####Example config/default.yaml Snippet
+```yaml
 # config/default.yaml
-
-# ... (other global configs)
 
 tasks:
   # ... (Git Tasks)
@@ -410,4 +411,439 @@ tasks:
       callbackurl: 'https://your-ngrok-url.ngrok-free.app/api/v1/webhook/gdrive/'
       credentials: { serviceAccountKeyPath: "" }
     currentStatus: SCHEDULED
+```
+## 5.3.3. HTTP Tasks (Cron)
+
+This subsection details the structure for defining tasks that crawl publicly accessible web pages and resources via **HTTP/HTTPS**, typically triggered by a cron schedule.
+
+---
+
+### **Key Configuration Fields**
+
+- **id** – A unique identifier for the task  
+  _Example_: `cron-http-crawl-daily`
+
+- **name** – A human-readable display name for the task.
+
+- **enabled** – A boolean (`true`/`false`) to activate or deactivate the task.
+
+- **source** – Defines the data source for this task.  
+  - **pluginType** – Must be `http-crawler`.  
+  - **config** – Contains specific settings for the HTTP Crawler:  
+    - **startUrl** – The initial URL from which the crawl will begin.  
+      _Example_: `https://www.godspeed.systems/docs` _(mandatory)_  
+    - **maxDepth** – Maximum depth for recursive crawling.  
+      _Example_: `2` _(1 means only the startUrl is crawled)_  
+    - **recursiveCrawling** – Boolean to enable/disable following links found on crawled pages.  
+    - **sitemapDiscovery** – Boolean to enable/disable automatic sitemap discovery.  
+    - **allowedDomains** – Optional array of domain names.  
+      _Example_: `['example.com']`  
+    - **excludePaths** – Optional array of URL path prefixes to ignore.  
+      _Example_: `['/private']`  
+    - **includePaths** – Optional array of URL path prefixes to follow exclusively.  
+      _Example_: `['/public']`  
+    - **requestTimeoutMs** – Timeout for HTTP requests in milliseconds.  
+      _Example_: `30000`  
+    - **userAgent** – User-Agent string for HTTP requests.  
+      _Example_: `MyCustomCrawler/1.0`  
+    - **headers** – Optional map of additional HTTP headers (e.g., for authentication).
+
+- **destination** – Defines where the ingested data will be stored.  
+  - **pluginType** – Must be `file-system-destination`.  
+  - **config** – Contains settings for the destination.  
+    _Example_: `outputPath: ./crawled_output/cron-http`
+
+- **Optional Destination** – If omitted, the Scheduler SDK will emit a `DATA_PROCESSED` event after transformation without local storage.
+
+- **trigger** – Specifies how the task is initiated.  
+  - **type** – Must be `cron`.  
+  - **expression** – Cron expression for scheduling.  
+    _Example_: `* * * * *` _(every minute)_
+
+- **currentStatus** – Initial status when loaded.  
+  _Example_: `SCHEDULED`
+
+---
+
+### **Example `config/default.yaml` Snippet for HTTP Tasks**
+
+```yaml
+# config/default.yaml
+
+# ... (other global configs and Git/Google Drive tasks)
+
+tasks:
+  # ... (Git and Google Drive Tasks)
+
+  cron-http-crawl-daily:
+    id: cron-http-crawl-daily
+    name: Daily Godspeed Website Crawl (Cron)
+    enabled: true # Set to true to enable this task
+    source:
+      pluginType: http-crawler
+      config:
+        startUrl: https://www.godspeed.systems/docs
+        maxDepth: 2
+        recursiveCrawling: true
+        sitemapDiscovery: false
+        # requestTimeoutMs: 30000
+        # userAgent: MyCustomCrawler/1.0
+        # headers: { Authorization: "Bearer your_token" }
+    destination:
+      pluginType: file-system-destination
+      config: { outputPath: './crawled_output/cron-http' }
+    trigger:
+      type: cron
+      expression: '* * * * *' # Every minute
+    currentStatus: SCHEDULED
+```
+## 5.4. Main Setup File (`src/final-test.ts`)
+
+This file acts as the application's **primary entry point** for initializing the **Scheduler SDK** and configuring its initial state. It brings together the various components of your data ingestion pipeline and sets them up for operation.
+
+---
+### 5.4.1. **Core Functionality**
+
+- **Scheduler Initialization**  
+  Obtains the singleton instance of the `GlobalIngestionLifecycleManager` (the core of your Scheduler SDK).
+
+- **Automated Source Registration**  
+  Uses:
+  ```typescript
+  globalIngestionManager.sources(['git-crawler', 'googledrive-crawler', 'http-crawler']);
+  ```
+  to automatically register the default crawler types and their associated transformers.
+This streamlines the setup process, avoiding repetitive manual registerSource calls.
+- **Destination Registration**  
+- It manually registers destination plugins, such as `FileSystemDestinationAdapter`, which defines where the processed data will be stored locally.
+
+- **Task Loading and Scheduling**  
+- It loads all defined ingestion tasks from the `tasks` section of your application's configuration (which comes from `config/default.yaml`).
+- For each loaded `taskDefinition`, it dynamically injects sensitive data (like API keys, service account paths, and webhook callback URLs) directly from `process.env` (your environment variables, loaded from `.env`).  
+  This is crucial for security, preventing sensitive information from being hardcoded in configuration files.
+- After injecting the dynamic values, it calls `globalIngestionManager.scheduleTask()` for each task, adding it to the Scheduler's management.
+  
+ - **Event Listeners**
+- It sets up event listeners on the `globalIngestionManager`'s internal event bus.  
+- These listeners capture and log important events such as:
+  - `TASK_COMPLETED`
+  - `TASK_FAILED`
+  - `DATA_TRANSFORMED`  
+- These are invaluable for debugging and monitoring the ingestion pipeline's activity.
+
+- **Manager Startup**
+- Finally, it calls:
+  ```javascript
+  globalIngestionManager.init();
+  globalIngestionManager.start();
+  ```
+  to initialize the Scheduler's database (in-memory in this simulation) and begin its operation, making it ready to process triggers
+
+  ## **5.5. Cron Trigger Workflow**
+
+This section explains how tasks configured with a cron schedule are automatically executed by the Scheduler SDK. It details the role of the cron event definition and its corresponding handler function.
+
+---
+
+### **5.5.1. Cron Event Definition (`config/events/cron-test.yaml`)**
+
+This YAML file defines a cron event source within the Godspeed framework.  
+It tells the Godspeed server to periodically emit an event based on a specified cron expression, which then triggers a designated function in your application.
+```yaml
+# C:\Users\SOHAM\Desktop\Crawler-sdk\crawler\src\events\cron-test.yaml
+
+cron.* * * * *.Asia/Kolkata: # The cron expression and timezone define the schedule
+  fn: TEST.triggerIngestionManagerCronTasks # This specifies the function to call when the cron event is due
+```
+**cron.* * * * *.Asia/Kolkata:** This is the event source definition.
+
+- **cron:** Indicates it's a cron event.  
+- **\* \* \* \* \*:** This is the standard cron expression, meaning "every minute." You can customize this to run tasks hourly, daily, etc.  
+- **Asia/Kolkata:** Specifies the timezone for the cron schedule.  
+- **fn: TEST.triggerIngestionManagerCronTasks:** This is the handler function that Godspeed will invoke when the cron event is due. It points to the `triggerIngestionManagerCronTasks` function located within the `TEST` directory under `src/functions/`.
+
+## **5.5.2. Cron Event Handler (`src/functions/TEST/triggerIngestionManagerCronTasks.ts`)**
+
+This TypeScript file contains the **Godspeed event handler** that is executed whenever a cron event, as defined in `cron-test.yaml`, is triggered.
+
+- **Primary Role:**  
+  To delegate the task of identifying and executing due cron tasks to the `GlobalIngestionLifecycleManager`.
+
+ ```typescript
+// C:\Users\SOHAM\Desktop\Crawler-sdk\crawler\src\functions\TEST\triggerIngestionManagerCronTasks.ts
+
+import { GSContext, logger } from '@godspeedsystems/core';
+import { globalIngestionManager } from './final-test' // Imports the singleton instance of the GlobalIngestionLifecycleManager
+
+/**
+ * Godspeed event handler for cron triggers.
+ * This function is expected to be called by a Godspeed cron event source
+ * (e.g., configured in events/cron_events.yaml).
+ * It instructs the GlobalIngestionLifecycleManager to check and trigger
+ * any scheduled cron tasks that are due.
+ *
+ * @param ctx The Godspeed context object, containing event details.
+ * @returns A GSStatus indicating the result of triggering cron tasks.
+ */
+export default async function (ctx: GSContext) {
+    logger.info("--- Received cron trigger. Initiating comprehensive manager method check. ---");
+    logger.info("Attempting to trigger all enabled cron tasks via GlobalIngestionLifecycleManager.");
+    
+    try {
+        // Calls the GlobalIngestionLifecycleManager's method to find and trigger due cron tasks.
+        // The manager handles all the internal logic like checking schedules, fetching tasks from DB,
+        // and invoking the crawlers.
+        const status = await globalIngestionManager.triggerAllEnabledCronTasks(ctx);
+
+        // Returns the status received from the manager's operation.
+        return status;
+    } catch (error: any) {
+        // Catches any unexpected errors during the triggering process and logs them.
+        // Returns a failed GSStatus to indicate an issue.
+        logger.error(`Error in triggerIngestionManagerCronTasks: ${error.message}`, { error });
+        return { success: false, message: `Failed to trigger cron tasks: ${error.message}` };
+    }
+}
+```
+## **5.5.3. How the Cron Workflow Works Together**
+
+- **Cron Event Source (Godspeed Framework)**  
+  The Godspeed framework, configured by `config/events/cron-test.yaml`, acts as a timer. At each specified interval (e.g., every minute), it emits a `cron.* * * * *.Asia/Kolkata` event.
+
+- **Event Handler Invocation**  
+  The Godspeed framework automatically routes this event to the `triggerIngestionManagerCronTasks.ts` function, as specified by the `fn` property in the YAML.
+
+- **Delegation to Scheduler SDK**  
+  The `triggerIngestionManagerCronTasks.ts` function's sole purpose is to call:  
+  ```typescript
+  globalIngestionManager.triggerAllEnabledCronTasks(ctx)
+- **Scheduler SDK's Orchestration:**
+
+The **GlobalIngestionLifecycleManager** then takes over:
+
+- It queries its in-memory database to **List Enabled Cron Tasks**.
+- It uses **cron-parser** to **Identify Due Tasks** by comparing the task's expression with the current time.
+- For each due task, it retrieves:
+  - The full **Task Definition**
+  - Any necessary continuation tokens (like `startPageToken` for Google Drive delta syncs) from its database.
+- It then invokes a new, dedicated instance of the appropriate **Crawler SDK** component  
+  (e.g., `git-crawler.ts`, `gdrive-crawler.ts`, `http-crawler.ts`) with a **Crawler Invocation Payload**.
+- After the crawler executes, the **GlobalIngestionLifecycleManager**:
+  - Updates the task's status
+  - Persists any new continuation tokens in its database.
+- Finally, it reports the overall **Execution Status & Data** to:
+  - The console
+  - Other configured outputs.
+
+This workflow ensures that tasks are executed reliably at scheduled intervals,  
+with the **Scheduler SDK** managing the state and coordination.
+
+## 5.6. Webhook Trigger Workflow
+
+This section details how tasks are executed in response to external webhook notifications from services like GitHub or Google Drive. It emphasizes the multi-stage validation steps, the retrieval of resource-specific secrets from the database, and the subsequent invocation of the appropriate Crawler SDK component.
+
+### 5.6.1. Webhook Event Definitions (`src/events/gdrive-event.yaml` & `src/events/git_events.yaml`)
+
+These YAML files define webhook event sources within the Godspeed framework. They instruct the Godspeed server to listen for incoming HTTP POST requests at specific API endpoints. When a request arrives at one of these endpoints, Godspeed automatically invokes the designated handler function.
+
+**Example** `src/events/git_events.yaml`
+```yaml
+# C:\Users\SOHAM\Desktop\Crawler-sdk\crawler\src\events\git_events.yaml
+
+http.post./webhook/github/: # Defines an HTTP POST endpoint at /webhook/github/
+  id : github-push-event # Unique identifier for this event
+  fn: TEST.triggerIngestionManagerWebhookTasks # The function to call when a request is received
+  summary: GitHub Push Event Webhook
+  description: Receives GitHub push event payloads to trigger Git crawling tasks.
+  authn: false # Authentication for this endpoint is handled by internal webhook validation
+  body:
+    content:
+      application/json:
+        schema: {} # Schema can be defined here if needed for validation
+  responses:
+    200:
+      description: Webhook received and processed successfully.
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              success: { type: boolean }
+              message: { type: string }
+```
+**Example** `src/events/gdrive-event.yaml`
+```yaml
+# C:\Users\SOHAM\Desktop\Crawler-sdk\crawler\src\events\gdrive-event.yaml
+
+http.post./webhook/gdrive/: # Defines an HTTP POST endpoint at /webhook/gdrive/
+  id : gdrive-push-event # Unique identifier for this event
+  fn: TEST.triggerIngestionManagerWebhookTasks # The function to call when a request is received
+  summary: Googledrive Push Event Webhook
+  description: Receives Googledrive push event payloads to trigger gdrive crawling tasks.
+  authn: false # Authentication for this endpoint is handled by internal webhook validation
+  body:
+    content:
+      application/json:
+        schema: {} # Schema can be defined here if needed for validation
+  responses:
+    200:
+      description: Webhook received and processed successfully.
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              success: { type: boolean }
+              message: { type: string }
+```
+**http.post./webhook/github/** / **http.post./webhook/gdrive/**  
+- These define the specific API endpoints that your Godspeed application will expose.  
+- External services like GitHub or Google Drive will send their webhook notifications to these URLs.  
+
+**id**  
+- A unique identifier for the event definition.  
+
+**fn: TEST.triggerIngestionManagerWebhookTasks**  
+- This specifies the handler function that Godspeed will execute when a notification is received at the endpoint.  
+- It points to the `triggerIngestionManagerWebhookTasks` function located within the `TEST` directory under `src/functions/`.  
+
+**authn: false**  
+- This indicates that Godspeed's built-in authentication for this HTTP endpoint is disabled.  
+- This is because webhook authentication (signature/secret validation) is handled internally by your Scheduler SDK's logic (`processWebhookRequest.ts`) for greater control and flexibility.  
+
+**5.6.2. Webhook Event Handler (`src/functions/TEST/triggerIngestionManagerWebhookTasks.ts`)**
+
+This TypeScript file contains the **Godspeed event handler** that is executed whenever a webhook notification, as defined in the event YAMLs, is received.  
+
+Its crucial role is to:  
+
+- Manage the **multi-stage validation**.  
+- Dispatch the **task execution** to the `GlobalIngestionLifecycleManager`.  
+ ```typescript
+C:\Users\SOHAM\Desktop\Crawler-sdk\crawler\src\functions\TEST\triggerIngestionManagerWebhookTasks.ts
+
+import { GSContext, GSStatus, logger } from "@godspeedsystems/core";
+import { globalIngestionManager } from './final-test' // Imports the singleton instance of the GlobalIngestionLifecycleManager
+import { ProcessedWebhookResult } from '../ingestion/interfaces'; // Required for type hinting
+
+/**
+ * Godspeed event handler for webhook triggers.
+ * This function is automatically invoked by the Godspeed framework when a webhook
+ * notification is received at a configured endpoint (e.g., /webhook/github/).
+ * It orchestrates the validation and processing of the webhook, then triggers
+ * the relevant ingestion tasks via the GlobalIngestionLifecycleManager.
+ *
+ * @param ctx The Godspeed context object, containing raw request inputs.
+ * @returns A GSStatus indicating the result of webhook processing and task triggering.
+ */
+export default async function (ctx: GSContext): Promise<GSStatus> {
+    logger.info("------------Received webhook event.-----------------------"); // Log webhook reception
+
+    // Extract raw webhook payload, headers, and endpoint ID from the Godspeed context.
+    const webhookPayload = (ctx.inputs as any).data.body;
+    const requestHeaders = (ctx.inputs as any).data.headers;
+    const endpointId = (ctx.inputs as any).type; // Represents the endpoint ID (e.g., '/webhook/github/')
+
+    try {
+        // Delegate the webhook processing to the GlobalIngestionLifecycleManager.
+        // This manager handles validation, task identification, and crawler invocation.
+        const result = await globalIngestionManager.triggerWebhookTask(ctx, endpointId, webhookPayload, requestHeaders);
+
+        // Check if the webhook processing failed or returned an invalid result.
+        if (!result.success) {
+            logger.warn(`Failed to process webhook: ${result.message || 'Unknown error'}`, { result });
+            return new GSStatus(false, 400, `Webhook validation failed: ${result.message || 'Unknown error'}`);
+        }
+
+        // --- Optional: Code for delayed task deletion as the scheduler is not using db so use these method for deregistering webhook(currently commented out) ---
+        // This section demonstrates how tasks could be programmatically deleted after a delay.
+        // It's commented out, so it does not execute during normal operation.
+        // logger.warn("delete initiated.....")
+        // function sleep(ms: number): Promise<void> {
+        //     return new Promise(resolve => setTimeout(resolve, ms));
+        // }
+        // async function deleteWithDelay() {
+        //     await sleep(30000); // wait for 30 seconds
+        //     await globalIngestionManager.deleteTask('my-webhook-google-drive-crawl-task');
+        //     const response = await globalIngestionManager.deleteTask('webhook-git-clone');
+        //     console.log("Delete response:", response);
+        // }
+        // deleteWithDelay();
+        // --- End of optional deletion code ---
+
+        // Return a successful status indicating the webhook event was processed.
+        return new GSStatus(true, 200, "Webhook event processed and ingestion triggered.", result);
+
+    } catch (error: any) {
+        // Catch any unexpected errors during webhook processing and return a failure status.
+        logger.error(`Error while processing webhook: ${error.message}`, { error });
+        return new GSStatus(false, 500, `Internal server error: ${error.message}`);
+    }
+}
+```
+## 5.6.3. How the Webhook Workflow Works Together
+
+- **External Webhook Notification**  
+  An External Data Source (e.g., GitHub, Google Drive) sends an HTTP POST Webhook Notification to the publicly accessible `callbackurl` (provided by ngrok for local, or your deployment server).
+
+- **Godspeed Webhook Listener**  
+  The Godspeed framework, configured by `config/events/git_events.yaml` or `gdrive-event.yaml`, receives this incoming HTTP POST request at the specified `endpointId` (e.g., `/webhook/github/`).
+
+- **Event Handler Invocation**  
+  Godspeed automatically invokes the `triggerIngestionManagerWebhookTasks.ts` function, passing the raw `webhookPayload` and `requestHeaders` within the `ctx` object.
+
+- **Delegation to Scheduler SDK**  
+  The `triggerIngestionManagerWebhookTasks.ts` function delegates the entire processing to  
+  ```ts
+  globalIngestionManager.triggerWebhookTask(ctx, endpointId, webhookPayload, requestHeaders);
+  ```
+- **Scheduler SDK's Multi-Stage Processing**  
+
+The **GlobalIngestionLifecycleManager** orchestrates the following steps:
+
+  **1. Preliminary Processing**  
+  - Calls `processWebhookRequest.ts` (a **Crawler SDK utility**) to **Preliminary Process Payload**.  
+  - Extracts the `externalResourceId` (e.g., GitHub repo URL, Google Drive folder ID) from the raw payload.
+
+  **2. Database Lookup**  
+  - Uses this `externalResourceId` to look up the **Webhook Registration** record in its **Webhook Registrations Data Store**.  
+  - This record contains:  
+    - `secret` (for validation)  
+    - `externalWebhookId` (Google's Channel ID)  
+    - `channelResourceId`  
+    - List of `registeredTasks` associated with this webhook.
+
+  **3. Full Validation**  
+  - Passes the raw `webhookPayload`, `requestHeaders`, and the retrieved `secret` / `externalWebhookId` back to `processWebhookRequest.ts` for **Full Validation**.  
+  - Examples include:  
+    - Checking **GitHub's** `X-Hub-Signature`  
+    - Checking **Google Drive's** `x-goog-channel-id`.
+
+  **4. Task Identification**  
+  - If the webhook is `isValid`, it identifies all **enabled tasks** from the `registeredTasks` array in the **Webhook Registration** record that need to be triggered.
+
+  **5. Crawler Invocation**  
+  - For each identified task:  
+    - Retrieves its full **Task Definition** from the **Ingestion Tasks Data Store**.  
+    - Prepares a **Crawler Invocation Payload** including:  
+      - Parsed `webhookPayload`  
+      - `externalResourceId`  
+      - `changeType`  
+      - Latest `startPageToken` / `nextPageToken` from the database  
+    - Invokes the relevant **Crawler SDK Component** (e.g., `git-crawler.ts`, `gdrive-crawler.ts`'s `execute()` method).
+
+  **6. Status & Token Persistence**  
+  - After the crawler executes, the **GlobalIngestionLifecycleManager** updates the task's status.  
+  - Persists any new continuation tokens back into the database.
+
+---
+
+- **Report Execution Status**  
+  - The `triggerIngestionManagerWebhookTasks.ts` function returns the **GSStatus** from the **GlobalIngestionLifecycleManager** back to **Godspeed**.  
+  - **Godspeed** sends the appropriate HTTP response (e.g., `200 OK`) back to the external service that sent the webhook.
+
+
+
+
+
 
